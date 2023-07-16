@@ -1,49 +1,62 @@
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } from "@chakra-ui/react";
 
-// type DataTableProps = {
-//   sortable: boolean;
-//   caption?: string;
-//   headers: string[];
-//   rows: (string | JSX.Element)[];
-// };
+type DataTableProps<T> = {
+  sortable: boolean;
+  caption?: string;
+  headers: string[];
+  data: T[];
+  keyExtractor: (row: T) => string;
+  renderRows: (item: T) => React.ReactNode;
+  showPagination?: boolean;
+  className?: string;
+};
 
-const DataTable = ({ sortable, caption, headers, rows }) => {
+function DataTable<T>({
+  sortable,
+  caption,
+  headers,
+  data,
+  keyExtractor,
+  renderRows,
+  className,
+  showPagination = false,
+}: DataTableProps<T>) {
   return (
-    <TableContainer>
+    <TableContainer width={data.length === 0 ? "100%" : "auto"} className={className || ""}>
       <Table variant="striped">
-        <TableCaption>Imperial to metric conversion factors</TableCaption>
+        <TableCaption placement="top">{caption || ""}</TableCaption>
         <Thead>
           <Tr>
-            <Th>To convert</Th>
-            <Th>into</Th>
-            <Th isNumeric>multiply by</Th>
+            {headers.map((header) => (
+              <Th key={header}>{header}</Th>
+            ))}
           </Tr>
         </Thead>
         <Tbody>
-          <Tr>
-            <Td>inches</Td>
-            <Td>millimetres (mm)</Td>
-            <Td isNumeric>25.4</Td>
-          </Tr>
-          <Tr>
-            <Td>feet</Td>
-            <Td>centimetres (cm)</Td>
-            <Td isNumeric>30.48</Td>
-          </Tr>
-          <Tr>
-            <Td>yards</Td>
-            <Td>metres (m)</Td>
-            <Td isNumeric>0.91444</Td>
-          </Tr>
+          {data.length === 0 ? (
+            <Tr>
+              <Td colSpan={headers.length} textAlign={"center"}>
+                No data found
+              </Td>
+            </Tr>
+          ) : (
+            <>
+              {data.map((row) => (
+                <Tr key={keyExtractor(row)}>{renderRows(row)}</Tr>
+              ))}
+            </>
+          )}
         </Tbody>
-        <Tfoot>
-          <Tr>
-            <Th>pagination</Th>
-          </Tr>
-        </Tfoot>
+        {showPagination && (
+          <Tfoot>
+            <Tr>
+              <Th>pagination</Th>
+            </Tr>
+          </Tfoot>
+        )}
       </Table>
     </TableContainer>
   );
-};
+}
 
 export default DataTable;
