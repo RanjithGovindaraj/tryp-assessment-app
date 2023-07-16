@@ -2,7 +2,7 @@ import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import DataTable from "@/components/DataTable";
 import data from "@/data/data.json";
-import { Box, Flex, IconButton, Td, useColorMode } from "@chakra-ui/react";
+import { Box, Flex, IconButton, Tag, Td, useColorMode } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 type rowType = {
@@ -14,6 +14,29 @@ type rowType = {
   status: string;
 };
 
+const StatusTag = ({ status }: { status: string }) => {
+  let colorScheme = "gray";
+  switch (status.toLowerCase()) {
+    case "failed":
+      colorScheme = "red";
+      break;
+    case "paid":
+      colorScheme = "green";
+      break;
+    case "waiting":
+      colorScheme = "yellow";
+      break;
+    default:
+      colorScheme = "gray";
+      break;
+  }
+  return (
+    <Tag borderRadius={"16px"} colorScheme={colorScheme}>
+      {status}
+    </Tag>
+  );
+};
+
 const Row = (row: rowType) => (
   <>
     <Td>{row.timestamp}</Td>
@@ -21,7 +44,9 @@ const Row = (row: rowType) => (
     <Td>{row.email}</Td>
     <Td>{row.name}</Td>
     <Td>{row.source}</Td>
-    <Td>{row.status}</Td>
+    <Td>
+      <StatusTag status={row.status} />
+    </Td>
   </>
 );
 
@@ -84,6 +109,14 @@ export default function Home() {
         />
         <DataTable<rowType>
           caption="Table with mock data"
+          headers={headers}
+          data={data.slice(0, 10)}
+          keyExtractor={(row) => row.purchase_id}
+          renderRows={Row}
+          sortable={false}
+        />
+        <DataTable<rowType>
+          caption="Table with mock data with sorting enabled"
           headers={headers}
           data={data.slice(0, 10)}
           keyExtractor={(row) => row.purchase_id}
