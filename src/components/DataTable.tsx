@@ -1,4 +1,5 @@
-import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } from "@chakra-ui/react";
+import { ChevronDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, IconButton } from "@chakra-ui/react";
 
 type DataTableProps<T> = {
   sortable: boolean;
@@ -28,7 +29,10 @@ function DataTable<T>({
         <Thead>
           <Tr>
             {headers.map((header) => (
-              <Th key={header}>{header}</Th>
+              <Th key={header}>
+                {header}
+                <IconButton variant={"ghost"} size={"xs"} aria-label={`sort ${header}`} icon={<ChevronDownIcon />} />
+              </Th>
             ))}
           </Tr>
         </Thead>
