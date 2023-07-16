@@ -25,6 +25,33 @@ const Row = (row: rowType) => (
   </>
 );
 
+const headers = [
+  {
+    title: "TIMESTAMP",
+    key: "timestamp",
+  },
+  {
+    title: "ID",
+    key: "purchase_id",
+  },
+  {
+    title: "EMAIL",
+    key: "email",
+  },
+  {
+    title: "NAME",
+    key: "name",
+  },
+  {
+    title: "SOURCE",
+    key: "source",
+  },
+  {
+    title: "STATUS",
+    key: "status",
+  },
+];
+
 export default function Home() {
   const { toggleColorMode, colorMode } = useColorMode();
 
@@ -49,7 +76,7 @@ export default function Home() {
       <main className={`${styles.main}`}>
         <DataTable<rowType>
           caption="Table with no data"
-          headers={["TIMESTAMP", "ID", "EMAIL", "NAME", "SOURCE", "STATUS"]}
+          headers={headers}
           data={[]}
           keyExtractor={(row) => row.purchase_id}
           renderRows={Row}
@@ -57,11 +84,11 @@ export default function Home() {
         />
         <DataTable<rowType>
           caption="Table with mock data"
-          headers={["TIMESTAMP", "ID", "EMAIL", "NAME", "SOURCE", "STATUS"]}
+          headers={headers}
           data={data.slice(0, 10)}
           keyExtractor={(row) => row.purchase_id}
           renderRows={Row}
-          sortable={false}
+          sortable={true}
         />
       </main>
     </>
