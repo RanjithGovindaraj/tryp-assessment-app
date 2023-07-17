@@ -1,7 +1,7 @@
 import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import DataTable from "@/components/DataTable";
-import data from "@/data/data.json";
+import data1000 from "@/data/data-1000.json";
 import { Box, Flex, IconButton, Tag, Td, useColorMode } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 
@@ -107,21 +107,36 @@ export default function Home() {
           renderRows={Row}
           sortable={false}
         />
+        <br />
+        <br />
         <DataTable<rowType>
           caption="Table with mock data"
           headers={headers}
-          data={data.slice(0, 10)}
+          data={data1000.slice(0, 10)}
           keyExtractor={(row) => row.purchase_id}
           renderRows={Row}
           sortable={false}
         />
+        <br />
+        <br />
         <DataTable<rowType>
           caption="Table with mock data with sorting enabled"
           headers={headers}
-          data={data.slice(0, 10)}
+          data={data1000.slice(0, 10)}
           keyExtractor={(row) => row.purchase_id}
           renderRows={Row}
           sortable={true}
+        />
+        <br />
+        <br />
+        <DataTable<rowType>
+          caption="Table with mock data with pagination enabled"
+          headers={headers}
+          data={data1000}
+          keyExtractor={(row) => row.purchase_id}
+          renderRows={Row}
+          pagination={true}
+          sortable
         />
       </main>
     </>

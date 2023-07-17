@@ -1,9 +1,23 @@
-import { ArrowUpIcon, ArrowDownIcon } from "@chakra-ui/icons";
-import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, IconButton } from "@chakra-ui/react";
+import { ArrowUpIcon, ArrowDownIcon, ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+  IconButton,
+  Flex,
+  Box,
+  Button,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
 type DataTableProps<T> = {
-  sortable: boolean;
+  className?: string;
   caption?: string;
   headers: {
     title: string;
@@ -12,13 +26,24 @@ type DataTableProps<T> = {
   data: T[];
   keyExtractor: (row: T) => string;
   renderRows: (item: T) => React.ReactNode;
-  showPagination?: boolean;
-  className?: string;
+  sortable?: boolean;
+  pagination?: boolean;
+  /**
+   * use dataMode: `raw`, when pagination has to be handled by data table
+   * use dataMode: paginated when pagination is handled by api
+   *
+   * if dataMode is `paginated`, send paginationMetaData */
+  dataMode?: "raw" | "paginated";
+  paginationMetaData?: {
+    total: number;
+    limit: number;
+    page: number;
+  };
 };
 
 type sortingOrder = "ascending" | "descending";
 
-// keeping it out so that is not re-rendered everytime
+// keeping it out so that is not initialized everytime
 const sortData = (data: any[], key: string, order: sortingOrder = "ascending") => {
   let sortedData = data.sort((a, b) => {
     if (order === "ascending") {
@@ -35,25 +60,84 @@ const sortData = (data: any[], key: string, order: sortingOrder = "ascending") =
 };
 
 function DataTable<T>({
-  sortable,
+  sortable = false,
   caption,
   headers,
   data,
   keyExtractor,
   renderRows,
   className,
-  showPagination = false,
+  pagination = false,
+  dataMode = "raw",
+  paginationMetaData = {
+    total: 0,
+    page: 1,
+    limit: 10,
+  },
 }: DataTableProps<T>) {
   const [sortingOption, setSortingOption] = useState("");
   const [tableData, setTableData] = useState<T[]>([]);
+  const [paginationData, setPaginationData] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+  });
+  const [sortedData, setSortedData] = useState<T[]>([]);
 
   useEffect(() => {
-    setTableData(data);
-  }, [data]);
+    if (pagination) {
+      if (dataMode === "raw") {
+        setTableData(data.slice(0, 10));
+        setSortedData(data);
+        setPaginationData({
+          total: data.length,
+          page: 1,
+          limit: 10,
+        });
+      } else {
+        setPaginationData(paginationMetaData);
+      }
+    } else setTableData(data);
+  }, [data, pagination, dataMode]);
 
   const sortingHandler = (value: string, order: sortingOrder) => {
     setSortingOption(`${value}:${order}`);
-    setTableData(sortData(data, value, order));
+    const tempSortedData = sortData(data, value, order);
+    setSortedData(sortData(data, value, order));
+    if (pagination) {
+      setTableData(tempSortedData.slice(0, 10));
+      setPaginationData({
+        total: data.length,
+        page: 1,
+        limit: 10,
+      });
+    } else setTableData(tempSortedData);
+  };
+
+  const previousClickHandler = () => {
+    const { limit, page } = paginationData;
+    const start = (page - 2) * limit;
+    const end = (page - 1) * limit;
+    setPaginationData((prev) => ({
+      limit: prev.limit,
+      page: prev.page - 1,
+      total: prev.total,
+    }));
+    const pageData = sortable ? sortedData.slice(start, end) : data.slice(start, end);
+    setTableData(pageData);
+  };
+
+  const nextClickHandler = () => {
+    const { limit, page } = paginationData;
+    const start = page * limit;
+    const end = (page + 1) * limit;
+    setPaginationData((prev) => ({
+      limit: prev.limit,
+      page: prev.page + 1,
+      total: prev.total,
+    }));
+    const pageData = sortable ? sortedData.slice(start, end) : data.slice(start, end);
+    setTableData(pageData);
   };
 
   return (
@@ -107,10 +191,32 @@ function DataTable<T>({
             </>
           )}
         </Tbody>
-        {showPagination && (
+        {pagination && (
           <Tfoot>
             <Tr>
-              <Th>pagination</Th>
+              <Th colSpan={headers.length} textAlign={"center"}>
+                <Flex alignItems={"center"} justifyContent={"center"}>
+                  <Button
+                    onClick={previousClickHandler}
+                    isDisabled={paginationData.page === 1}
+                    leftIcon={<ChevronLeftIcon />}
+                    mr="10px"
+                  >
+                    Previous
+                  </Button>
+                  <Box>
+                    page {paginationData.page} of {Math.ceil(paginationData.total / paginationData.limit)}
+                  </Box>
+                  <Button
+                    onClick={nextClickHandler}
+                    isDisabled={paginationData.page * paginationData.limit >= paginationData.total}
+                    ml={"10px"}
+                    rightIcon={<ChevronRightIcon />}
+                  >
+                    Next
+                  </Button>
+                </Flex>
+              </Th>
             </Tr>
           </Tfoot>
         )}
