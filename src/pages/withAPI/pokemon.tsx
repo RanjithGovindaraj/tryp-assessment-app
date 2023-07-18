@@ -3,6 +3,8 @@ import styles from "@/styles/Home.module.css";
 import DataTable from "@/components/DataTable";
 import { Td } from "@chakra-ui/react";
 import Link from "next/link";
+import { GetServerSideProps } from "next";
+import { useRouter } from "next/router";
 
 type Pokemon = {
   name: string;
@@ -25,11 +27,9 @@ const fetchPokemon = async (limit: number, offset: number) => {
   try {
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/?limit=${limit}&offset=${offset}`);
     const data = await response.json();
-    console.log(data);
     return { data: data, error: null };
   } catch (error) {
-    console.log("error");
-    return { data: null, error: error };
+    return { data: [], error: error };
   }
 };
 
@@ -38,14 +38,53 @@ const Row = ({ name, url }: Pokemon) => {
     <>
       <Td>{name}</Td>
       <Td>
-        <Link href={url}>{url}</Link>
+        <Link className={styles.link} href={url}>
+          {url}
+        </Link>
       </Td>
     </>
   );
 };
 
 export default function Pokemon({ data, error }: PokemonProps) {
-  console.log(data);
+  const router = useRouter();
+
+  const query = router.query;
+  const limit = query.limit ? (Array.isArray(query.limit) ? parseInt(query.limit[0]) : parseInt(query.limit)) : 20;
+  const offset = query.offset ? (Array.isArray(query.offset) ? parseInt(query.offset[0]) : parseInt(query.offset)) : 0;
+
+  const previousHandler = () => {
+    if (data.previous) {
+      const url = new URL(data.previous);
+      const limit = url.searchParams.get("limit");
+      const offset = url.searchParams.get("offset");
+      if (limit && offset) {
+        router.push({
+          query: {
+            limit,
+            offset,
+          },
+        });
+      }
+    }
+  };
+
+  const nextHandler = () => {
+    if (data.next) {
+      const url = new URL(data.next);
+      const limit = url.searchParams.get("limit");
+      const offset = url.searchParams.get("offset");
+      if (limit && offset) {
+        router.push({
+          query: {
+            limit,
+            offset,
+          },
+        });
+      }
+    }
+  };
+
   return (
     <>
       <Head>
@@ -69,18 +108,30 @@ export default function Pokemon({ data, error }: PokemonProps) {
           data={data.results}
           keyExtractor={(row) => row.name}
           renderRows={Row}
+          pagination
+          paginationMetaData={{
+            limit: limit,
+            page: offset / 20 + 1,
+            total: data.count,
+          }}
+          dataMode="paginated"
+          onPreviousClick={previousHandler}
+          onNextClick={nextHandler}
         />
       </main>
     </>
   );
 }
 
-export async function getStaticProps() {
-  const { data, error } = await fetchPokemon(20, 0);
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { query } = context;
+  const limit = query.limit ? (Array.isArray(query.limit) ? parseInt(query.limit[0]) : parseInt(query.limit)) : 20;
+  const offset = query.offset ? (Array.isArray(query.offset) ? parseInt(query.offset[0]) : parseInt(query.offset)) : 0;
+  const { data, error } = await fetchPokemon(limit, offset);
   return {
     props: {
       data: data,
       error: error,
     },
   };
-}
+};

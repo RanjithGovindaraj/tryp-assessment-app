@@ -6,3 +6,8 @@
   padding: 6rem;
   min-height: 100vh;
 }
+
+.link:hover {
+  color: blueviolet;
+  text-decoration: underline;
+}

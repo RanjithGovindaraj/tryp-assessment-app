@@ -39,6 +39,8 @@ type DataTableProps<T> = {
     limit: number;
     page: number;
   };
+  onPreviousClick?: () => void;
+  onNextClick?: () => void;
 };
 
 type sortingOrder = "ascending" | "descending";
@@ -74,6 +76,8 @@ function DataTable<T>({
     page: 1,
     limit: 10,
   },
+  onPreviousClick = () => {},
+  onNextClick = () => {},
 }: DataTableProps<T>) {
   const [sortingOption, setSortingOption] = useState("");
   const [tableData, setTableData] = useState<T[]>([]);
@@ -95,6 +99,7 @@ function DataTable<T>({
           limit: 10,
         });
       } else {
+        setTableData(data);
         setPaginationData(paginationMetaData);
       }
     } else setTableData(data);
@@ -104,7 +109,7 @@ function DataTable<T>({
     setSortingOption(`${value}:${order}`);
     const tempSortedData = sortData(data, value, order);
     setSortedData(sortData(data, value, order));
-    if (pagination) {
+    if (pagination && dataMode === "raw") {
       setTableData(tempSortedData.slice(0, 10));
       setPaginationData({
         total: data.length,
@@ -115,6 +120,10 @@ function DataTable<T>({
   };
 
   const previousClickHandler = () => {
+    if (dataMode === "paginated") {
+      onPreviousClick();
+      return;
+    }
     const { limit, page } = paginationData;
     const start = (page - 2) * limit;
     const end = (page - 1) * limit;
@@ -128,6 +137,10 @@ function DataTable<T>({
   };
 
   const nextClickHandler = () => {
+    if (dataMode === "paginated") {
+      onNextClick();
+      return;
+    }
     const { limit, page } = paginationData;
     const start = page * limit;
     const end = (page + 1) * limit;
