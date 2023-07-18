@@ -2,8 +2,7 @@ import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import DataTable from "@/components/DataTable";
 import data1000 from "@/data/data-1000.json";
-import { Box, Flex, IconButton, Tag, Td, useColorMode } from "@chakra-ui/react";
-import { MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { Tag, Td } from "@chakra-ui/react";
 
 type rowType = {
   timestamp: string;
@@ -78,8 +77,6 @@ const headers = [
 ];
 
 export default function Home() {
-  const { toggleColorMode, colorMode } = useColorMode();
-
   return (
     <>
       <Head>
@@ -88,16 +85,6 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Box width={"100%"} padding={"20px"}>
-        <Flex alignItems={"center"} justifyContent={"space-between"}>
-          <Box>DataTable</Box>
-          <IconButton
-            aria-label="toggle color scheme"
-            onClick={toggleColorMode}
-            icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-          />
-        </Flex>
-      </Box>
       <main className={`${styles.main}`}>
         <DataTable<rowType>
           caption="Table with no data"
