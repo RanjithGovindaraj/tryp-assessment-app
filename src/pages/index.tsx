@@ -2,7 +2,8 @@ import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import DataTable from "@/components/DataTable";
 import data1000 from "@/data/data-1000.json";
-import { Tag, Td } from "@chakra-ui/react";
+import { Box, Heading, ListItem, Tag, Td, UnorderedList } from "@chakra-ui/react";
+import Link from "next/link";
 
 type rowType = {
   timestamp: string;
@@ -86,6 +87,37 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={`${styles.main}`}>
+        <Box width={"100%"}>
+          <Heading as="h1">Table of contents</Heading>
+          <UnorderedList>
+            <ListItem>
+              <a className={styles.link} href="#no-data">
+                Table with no data
+              </a>
+            </ListItem>
+            <ListItem>
+              <a className={styles.link} href="#mock-data">
+                Table with mock data
+              </a>
+            </ListItem>
+            <ListItem>
+              <a className={styles.link} href="#mock-data-with-sorting">
+                Table with mock data with sorting enabled
+              </a>
+            </ListItem>
+            <ListItem>
+              <a className={styles.link} href="#mock-data-with-pagination">
+                Table with mock data with pagination enabled
+              </a>
+            </ListItem>
+            <ListItem>
+              <Link className={styles.link} href={"/withAPI/pokemon"}>
+                Table with data from pokemon API
+              </Link>
+            </ListItem>
+          </UnorderedList>
+        </Box>
+        <a id="no-data"></a>
         <DataTable<rowType>
           caption="Table with no data"
           headers={headers}
@@ -96,6 +128,7 @@ export default function Home() {
         />
         <br />
         <br />
+        <a id="mock-data"></a>
         <DataTable<rowType>
           caption="Table with mock data"
           headers={headers}
@@ -106,6 +139,7 @@ export default function Home() {
         />
         <br />
         <br />
+        <a id="mock-data-with-sorting"></a>
         <DataTable<rowType>
           caption="Table with mock data with sorting enabled"
           headers={headers}
@@ -116,6 +150,7 @@ export default function Home() {
         />
         <br />
         <br />
+        <a id="mock-data-with-pagination"></a>
         <DataTable<rowType>
           caption="Table with mock data with pagination enabled"
           headers={headers}
