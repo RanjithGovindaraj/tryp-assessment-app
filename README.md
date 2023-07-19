@@ -23,5 +23,6 @@ pnpm dev
 You can visit all the components listed in the table of components
 
 http://localhost:3000/withAPI/pokemon - contains data fetched from [Pokemon API](https://pokeapi.co)
+This page is rendered on the server side and re-rendered on server whenever a new request is sent
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
